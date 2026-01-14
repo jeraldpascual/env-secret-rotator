@@ -19,6 +19,13 @@ jobs:
       - run: npm ci
       - name: Configure npm auth
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Debug npm auth
+        run: |
+          echo "NODE_AUTH_TOKEN set: ${NODE_AUTH_TOKEN:+yes}"
+          echo "---- npm whoami (will show username or error) ----"
+          npm whoami || echo "not authenticated"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish package
         run: npm publish --access public
         env:
