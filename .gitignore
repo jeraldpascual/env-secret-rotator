@@ -1,0 +1,14 @@
+node_modules/
+coverage/
+.localstorage
+*.log
+.env
+dist/
+build/
+*.bak
+examples/**/report*.json
+/.npmignore
+/.idea/
+*.swp
+*.DS_Store
+coverage/

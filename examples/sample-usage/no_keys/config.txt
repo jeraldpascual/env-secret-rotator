@@ -1,0 +1,3 @@
+# This config file intentionally contains no secrets
+name=sample
+enabled=true
