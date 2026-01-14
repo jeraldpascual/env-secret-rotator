@@ -57,6 +57,8 @@ CI example
 
 This repo includes a simple GitHub Actions workflow at `.github/workflows/ci.yml` that runs tests and then runs a secret scan. The scan step uses `scripts/ci-scan.js` and will fail the job if any secrets are found.
 
+Note: the included `ci.yml` triggers on `push` and `pull_request` (see `.github/workflows/ci.yml`). If you want publishing on releases, add a workflow that listens to `release.published` or create a Release in GitHub to trigger release-based workflows.
+
 
 ## Replace (automatic replacement)
 
@@ -102,6 +104,25 @@ mv file.js.bak file.js
 ```
 
 - `.localstorage` and example report files are ignored by default via `.gitignore`. If you created reports inside a scanned folder, consider removing them before committing.
+
+### Common CLI options (examples)
+
+- Scan with a path, ignore patterns, and output a JSON report:
+```bash
+npx env-secret-rotator scan -p ./src -i "node_modules/**,.git/**,build/**,dist/**" -o secrets-report.json
+```
+
+- Dry-run replace (safe):
+```bash
+npx env-secret-rotator replace -p . --dry-run -i "node_modules/**,.git/**"
+```
+
+- Force apply replacements in CI (non-interactive; creates `.bak` backups):
+```bash
+npx env-secret-rotator replace -p . --yes -i "node_modules/**,.git/**"
+```
+
+When running in CI you should set the appropriate auth/environment variables (for npm publishing) and use `--yes` only after reviewing the dry-run report.
 
 ## Suggested next actions (non-technical)
 

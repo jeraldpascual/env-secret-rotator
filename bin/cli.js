@@ -20,6 +20,7 @@ program
 program
   .command('scan')
   .description('Scan repository for leaked secrets')
+  .option('--no-default-ignores', 'Do not apply built-in ignore patterns (useful to include examples or vendor files)')
   .option('-p, --path <path>', 'Path to scan', process.cwd())
   .option('-i, --ignore <patterns>', 'Patterns to ignore (comma-separated)')
   .option('-o, --output <file>', 'Output report file', 'secrets-report.json')
@@ -38,6 +39,26 @@ program
           options.ignore = options.ignore ? `${options.ignore},${rel}` : rel;
         }
       }
+
+      // Ensure common folders are ignored by default to avoid scanning dependencies/build artifacts
+      const defaultIgnores = ['node_modules/**', '.git/**', 'dist/**', 'build/**', 'examples/**', '**/*.bak', 'tests/**'];
+      let finalIgnore;
+      if (options.ignore) {
+        finalIgnore = Array.isArray(options.ignore)
+          ? options.ignore.slice()
+          : options.ignore.split(',').map(s => s.trim()).filter(Boolean);
+      } else {
+        finalIgnore = [];
+      }
+
+      // By default we append built-in ignore patterns; callers can opt-out with --no-default-ignores
+      if (options.defaultIgnores !== false) {
+        for (const d of defaultIgnores) {
+          if (!finalIgnore.includes(d)) finalIgnore.push(d);
+        }
+      }
+
+      options.ignore = finalIgnore;
 
       const results = await scanner.scan(options);
       console.log(_chalk.green(`✓ Scan complete. Found ${results.secrets.length} potential secrets.`));
